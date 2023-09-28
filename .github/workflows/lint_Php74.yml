@@ -1,6 +1,7 @@
 name : 'Php 7.4'
 
 on:
+  workflow_call:
   push:
     branches:
       - beta
