@@ -52,6 +52,7 @@ jobs:
           # Optional: Ignore warnings
           php_codesniffer_args: "-n --ignore-annotations ./core ./desktop ./plugin_info"
           flake8: true
+          flake8_args: "--extend-exclude=vendor/"
           prettier: true
           prettier_extensions: css,html,js,json,jsx,md,sass,scss,ts,tsx,vue,yaml
           auto_fix: true
@@ -61,3 +62,4 @@ jobs:
           commit: false
           black: true
           black_auto_fix: true
+          black_args: "--exclude=vendor/"
