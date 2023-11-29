@@ -16,7 +16,7 @@ on:
 
 jobs:
   run-linters:
-    name: Run linters
+    name: Run On PHP 8.0
     runs-on: ubuntu-latest
 
     steps:
