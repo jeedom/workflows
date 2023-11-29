@@ -6,12 +6,10 @@ on:
   push:
     branches:
       - beta
-      - prettier
   pull_request:
     branches:
       - beta
       - master
-      - prettier
 
 jobs:
   codeLintGlobal:
@@ -24,5 +22,3 @@ jobs:
     uses: jeedom/workflows/.github/workflows/lint_Php80.yml@main
   php82:
     uses: jeedom/workflows/.github/workflows/lint_Php82.yml@main
-  prettier:
-    uses: jeedom/workflows/.github/workflows/prettier.yml@main
