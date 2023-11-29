@@ -1,0 +1,28 @@
+name : 'plugin'
+
+on:
+  # Workflows check plugin Jeedom
+  workflow_call:
+  push:
+    branches:
+      - beta
+  pull_request:
+    branches:
+      - beta
+      - master
+
+jobs:
+  codeLintGlobal:
+    uses: jeedom/workflows/.github/workflows/codeLintGlobal.yml@main
+  php73:
+    uses: jeedom/workflows/.github/workflows/lint_Php73.yml@main
+  php74:
+    uses: jeedom/workflows/.github/workflows/lint_Php74.yml@main
+  php80:
+    uses: jeedom/workflows/.github/workflows/lint_Php80.yml@main
+  php82:
+    uses: jeedom/workflows/.github/workflows/lint_Php82.yml@main
+  checkCommit:
+    uses : jeedom/workflows/.github/workflows/checkCommit.yml@main
+  semantic-realase:
+    uses : jeedom/workflows/.github/workflows/semantic-realase.yml@main
