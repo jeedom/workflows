@@ -2,6 +2,7 @@ name : 'plugin'
 
 on:
   # Workflows check plugin Jeedom
+  workflow_call:
   push:
     branches:
       - beta
