@@ -22,5 +22,3 @@ jobs:
     uses: jeedom/workflows/.github/workflows/lint_Php80.yml@main
   php82:
     uses: jeedom/workflows/.github/workflows/lint_Php82.yml@main
-  php:
-    uses: jeedom/workflows/.github/workflows/php.yml@main
