@@ -9,6 +9,7 @@ name: Automatic Build
 
 on:
   # add here any required branch to trigger the workflow
+  workflow_call:
   push:
     branches: [ master, beta, main, alpha ]
   pull_request_target:
