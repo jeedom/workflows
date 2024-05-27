@@ -12,8 +12,6 @@ on:
       - master
 
 jobs:
-  codeLintGlobal:
-    uses: jeedom/workflows/.github/workflows/codeLintGlobal.yml@main
   php73:
     uses: jeedom/workflows/.github/workflows/lint_Php73.yml@main
   php74:
