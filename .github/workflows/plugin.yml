@@ -12,8 +12,6 @@ on:
       - master
 
 jobs:
-  php73:
-    uses: jeedom/workflows/.github/workflows/lint_Php73.yml@main
   php74:
     uses: jeedom/workflows/.github/workflows/lint_Php74.yml@main
   php80:
