@@ -1,0 +1,131 @@
+name: Docs publish
+
+on:
+  workflow_call:
+    inputs:
+      repo_kind:
+        description: "Kind of calling repository: 'core' or 'plugin'"
+        required: true
+        type: string
+      docs_dir:
+        description: "Source docs directory in the calling repository"
+        required: false
+        default: "docs"
+        type: string
+      source_ref:
+        description: "Ref of the calling repository to checkout (defaults to the ref that triggered the workflow, override to backfill an older version)"
+        required: false
+        default: ""
+        type: string
+      beta_branch_name:
+        description: "Branch name that publishes under a /beta suffix (plugins only)"
+        required: false
+        default: "beta"
+        type: string
+      docs_repo:
+        description: "Target documentation repository"
+        required: false
+        default: "jeedom/documentations"
+        type: string
+      docs_repo_branch:
+        description: "Target branch in the documentation repository"
+        required: false
+        default: "master"
+        type: string
+    secrets:
+      docs_repo_token:
+        description: "Token with push access to the documentation repository"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
+
+      - name: Checkout documentation repository
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ inputs.docs_repo }}
+          ref: ${{ inputs.docs_repo_branch }}
+          token: ${{ secrets.docs_repo_token }}
+          path: documentations
+
+      - name: Compute destination path
+        id: target
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ inputs.repo_kind }}" = "core" ]; then
+            version="$(cat core/config/version)"
+            version_mm="$(echo "$version" | cut -d. -f1,2)"
+            dest="core/${version_mm}"
+
+          elif [ "${{ inputs.repo_kind }}" = "plugin" ]; then
+            plugin_id="$(jq -r '.id' plugin_info/info.json)"
+            category="$(jq -r '.category' plugin_info/info.json)"
+
+            # Alias resolution mirrors jeedom/core's core/config/jeedom.config.php
+            # 'plugin' > 'category' array. Update here if that config ever adds new aliases.
+            case "$category" in
+              travel|finance) category="organization" ;;
+            esac
+
+            dest="plugins/${category}/${plugin_id}"
+            if [ "${{ github.ref_name }}" = "${{ inputs.beta_branch_name }}" ]; then
+              dest="${dest}/beta"
+            fi
+
+          else
+            echo "Unknown repo_kind: ${{ inputs.repo_kind }}" >&2
+            exit 1
+          fi
+
+          echo "path=${dest}" >> "$GITHUB_OUTPUT"
+
+      - name: Sync language folders and images
+        shell: bash
+        run: |
+          set -euo pipefail
+          locales=(fr_FR en_US de_DE es_ES)
+          images_dir="${{ inputs.docs_dir }}/images"
+          dest_root="documentations/${{ steps.target.outputs.path }}"
+
+          for lang in "${locales[@]}"; do
+            lang_dir="${{ inputs.docs_dir }}/$lang"
+            [ -d "$lang_dir" ] || continue
+
+            dest="${dest_root}/${lang}"
+            mkdir -p "$dest"
+            rsync -a --delete "$lang_dir"/ "$dest"/
+          done
+
+          if [ -d "$images_dir" ]; then
+            images_dest="${dest_root}/images"
+            mkdir -p "$images_dest"
+            rsync -a --delete "$images_dir"/ "$images_dest"/
+          fi
+
+      - name: Commit and push if changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd documentations
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .
+          if git diff --cached --quiet; then
+            echo "No documentation changes to push"
+            exit 0
+          fi
+
+          git commit -m "docs: sync ${{ github.repository }} (${{ steps.target.outputs.path }})"
+          git push origin "${{ inputs.docs_repo_branch }}"
