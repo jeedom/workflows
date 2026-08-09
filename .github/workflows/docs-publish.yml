@@ -98,6 +98,33 @@ jobs:
 
           echo "path=${dest}" >> "$GITHUB_OUTPUT"
 
+      - name: Remove stale docs from a previous category
+        if: ${{ inputs.repo_kind == 'plugin' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          plugin_id="$(jq -r '.id' plugin_info/info.json)"
+          current_category="$(echo "${{ steps.target.outputs.path }}" | cut -d/ -f2)"
+
+          for old_dir in documentations/plugins/*/"${plugin_id}"; do
+            [ -d "$old_dir" ] || continue
+            old_category="$(basename "$(dirname "$old_dir")")"
+            [ "$old_category" = "$current_category" ] && continue
+
+            if [ "${{ github.ref_name }}" = "${{ inputs.beta_branch_name }}" ]; then
+              # This run only publishes the beta variant: only drop the stale beta
+              # subfolder, the stable docs may still legitimately live here if the
+              # category change hasn't landed on the stable branch yet.
+              if [ -d "$old_dir/beta" ]; then
+                echo "Removing stale beta docs for ${plugin_id} under old category '${old_category}'"
+                rm -rf "$old_dir/beta"
+              fi
+            else
+              echo "Removing stale docs for ${plugin_id} under old category '${old_category}'"
+              rm -rf "$old_dir"
+            fi
+          done
+
       - name: Sync language folders and images
         shell: bash
         run: |
