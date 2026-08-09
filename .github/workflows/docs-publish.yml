@@ -78,6 +78,14 @@ jobs:
               travel|finance) category="organization" ;;
             esac
 
+            # Known categories mirror the same config's key list. Anything unmapped
+            # (typo, retired value, etc.) falls back to "other" instead of creating
+            # a stray folder in the documentation repository.
+            case "$category" in
+              security|"automation protocol"|"home automation protocol"|programming|organization|weather|communication|devicecommunication|multimedia|wellness|monitoring|health|nature|automatisation|energy|other) ;;
+              *) category="other" ;;
+            esac
+
             dest="plugins/${category}/${plugin_id}"
             if [ "${{ github.ref_name }}" = "${{ inputs.beta_branch_name }}" ]; then
               dest="${dest}/beta"
