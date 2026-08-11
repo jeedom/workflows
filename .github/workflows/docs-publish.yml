@@ -125,22 +125,6 @@ jobs:
             fi
           done
 
-      - name: Sync plugin icon
-        if: ${{ inputs.repo_kind == 'plugin' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          plugin_id="$(jq -r '.id' plugin_info/info.json)"
-          icon_src="plugin_info/${plugin_id}_icon.png"
-          dest_root="documentations/${{ steps.target.outputs.path }}"
-
-          if [ -f "$icon_src" ]; then
-            mkdir -p "$dest_root"
-            cp "$icon_src" "$dest_root/${plugin_id}_icon.png"
-          else
-            echo "No icon found at $icon_src, skipping" >&2
-          fi
-
       - name: Sync language folders and images
         shell: bash
         run: |
