@@ -4,8 +4,9 @@ on:
   workflow_call:
     inputs:
       repo_kind:
-        description: "Kind of calling repository: 'core' or 'plugin'"
-        required: true
+        description: "Kind of calling repository: 'core' or 'plugin' (default: 'plugin')"
+        required: false
+        default: "plugin"
         type: string
       docs_dir:
         description: "Source docs directory in the calling repository"
