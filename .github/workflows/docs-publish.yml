@@ -31,7 +31,7 @@ on:
       docs_repo_branch:
         description: "Target branch in the documentation repository"
         required: false
-        default: "master"
+        default: "rework"
         type: string
     secrets:
       docs_repo_token:
