@@ -13,11 +13,6 @@ on:
         required: false
         default: "docs"
         type: string
-      source_ref:
-        description: "Ref of the calling repository to checkout (defaults to the ref that triggered the workflow, override to backfill an older version)"
-        required: false
-        default: ""
-        type: string
       beta_branch_name:
         description: "Branch name that publishes under a /beta suffix (plugins only)"
         required: false
@@ -47,8 +42,6 @@ jobs:
     steps:
       - name: Checkout source repository
         uses: actions/checkout@v7
-        with:
-          ref: ${{ inputs.source_ref || github.sha }}
 
       - name: Checkout documentation repository
         uses: actions/checkout@v7
