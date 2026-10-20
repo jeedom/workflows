@@ -19,6 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: michaelw90/PHP-Lint@master
-
-      
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "7.4"
+          coverage: none
+          tools: none
+      - name: Check PHP syntax
+        run: git ls-files -z -- '*.php' | xargs -0 -r -n 1 php -l
